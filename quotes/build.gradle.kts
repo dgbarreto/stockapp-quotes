@@ -1,0 +1,69 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+plugins {
+    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.androidMultiplatformLibrary)
+    alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.composeCompiler)
+}
+
+kotlin {
+    listOf(
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "Quotes"
+            isStatic = true
+            freeCompilerArgs += listOf("-Xbinary=bundleId=com.danilobarreto.stockapp.quotes")
+        }
+    }
+    
+    androidLibrary {
+       namespace = "com.danilobarreto.stockapp.quotes"
+       compileSdk = libs.versions.android.compileSdk.get().toInt()
+       minSdk = libs.versions.android.minSdk.get().toInt()
+    
+       compilerOptions {
+           jvmTarget = JvmTarget.JVM_11
+       }
+       androidResources {
+           enable = true
+       }
+       withHostTest {
+           isIncludeAndroidResources = true
+       }
+    }
+    
+    sourceSets {
+        androidMain.dependencies {
+            implementation(libs.compose.uiToolingPreview)
+        }
+        commonMain.dependencies {
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.material3)
+            implementation(libs.compose.ui)
+            implementation(libs.compose.components.resources)
+            implementation(libs.compose.uiToolingPreview)
+            implementation(libs.androidx.lifecycle.viewmodelCompose)
+            implementation(libs.androidx.lifecycle.runtimeCompose)
+        }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+        }
+    }
+}
+
+dependencies {
+    androidRuntimeClasspath(libs.compose.uiTooling)
+}
+
+// CMP 1.11.1 pre-built binaries use UIViewLayoutRegion (UIUtilities.framework), an iOS 26 API
+// not present in the Xcode 16.4 / iOS 18.5 SDK. Disable iOS Simulator test linking until
+// Xcode 17 (iOS 26 SDK) is installed or CMP is downgraded to a version built with iOS 18 SDK.
+tasks.matching {
+    it.name == "linkDebugTestIosSimulatorArm64" || it.name == "iosSimulatorArm64Test"
+}.configureEach {
+    enabled = false
+}
