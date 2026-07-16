@@ -6,7 +6,11 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinxSerialization)
+    `maven-publish`
 }
+
+group = "com.danilobarreto.stockapp"
+version = "0.1.0"
 
 kotlin {
     jvm("desktop")

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
@@ -41,11 +42,12 @@ fun QuoteScreen(viewModel: QuotesViewModel){
         modifier = Modifier
             .fillMaxSize()
             .background(StockAppColors.surface1)
+            .safeContentPadding()
             .padding(16.dp)) {
 
         Text("Cotações", style = StockAppTypography.titleLarge, color = StockAppColors.textPrimary)
 
-        Row(verticalAlignment = Alignment.CenterVertically){
+        Row(verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
                 value = ticker,
                 onValueChange = { ticker = it.uppercase() },
@@ -55,27 +57,28 @@ fun QuoteScreen(viewModel: QuotesViewModel){
             Button(
                 onClick = { viewModel.search(ticker) },
                 modifier = Modifier.padding(start = 8.dp)
-            ){
+            ) {
                 Text("Buscar")
             }
-            when(val state = uiState){
-                is QuoteUiState.Idle -> {
-                    Text(
-                        "Digite um ticker para ver os indicadores.",
-                        style = StockAppTypography.bodyMedium,
-                        color = StockAppColors.textMuted,
-                        modifier = Modifier.padding(top = 24.dp)
-                    )
-                }
-                is QuoteUiState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.padding(top = 24.dp))
-                }
-                is QuoteUiState.Error -> {
-                    StockAppErrorBanner(state.message, modifier = Modifier.padding(top = 24.dp))
-                }
-                is QuoteUiState.Success -> {
-                    QuoteFundamentasCard(state.fundamentals)
-                }
+        }
+
+        when(val state = uiState){
+            is QuoteUiState.Idle -> {
+                Text(
+                    "Digite um ticker para ver os indicadores.",
+                    style = StockAppTypography.bodyMedium,
+                    color = StockAppColors.textMuted,
+                    modifier = Modifier.padding(top = 24.dp)
+                )
+            }
+            is QuoteUiState.Loading -> {
+                CircularProgressIndicator(modifier = Modifier.padding(top = 24.dp))
+            }
+            is QuoteUiState.Error -> {
+                StockAppErrorBanner(state.message, modifier = Modifier.padding(top = 24.dp))
+            }
+            is QuoteUiState.Success -> {
+                QuoteFundamentasCard(state.fundamentals)
             }
         }
     }
