@@ -7,6 +7,9 @@ val localProperties = java.util.Properties().apply {
 }
 val useLocalDesignSystem = localProperties.getProperty("useLocalDesignSystem", "false").toBoolean()
 
+fun prop(name: String): String? =
+    System.getenv(name) ?: localProperties.getProperty(name)
+
 pluginManagement {
     repositories {
         google {
@@ -32,6 +35,14 @@ dependencyResolutionManagement {
         }
         mavenCentral()
         mavenLocal()
+        maven {
+            name = "GitHubPackagesDesignSystem"
+            url = uri("https://maven.pkg.github.com/dgbarreto/stockapp-designsystem")
+            credentials {
+                username = prop("GITHUB_ACTOR")
+                password = prop("GITHUB_TOKEN")
+            }
+        }
     }
 }
 
