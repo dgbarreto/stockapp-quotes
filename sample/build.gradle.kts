@@ -31,6 +31,8 @@ kotlin {
             implementation(libs.compose.material3)
             implementation(libs.compose.ui)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
+
+            implementation("com.danilobarreto.stockapp:designsystem:0.1.0")
         }
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
