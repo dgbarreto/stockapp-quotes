@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -10,7 +11,29 @@ plugins {
 }
 
 group = "com.danilobarreto.stockapp"
-version = "0.1.0"
+
+val localProperties = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+
+fun prop(envName: String): String? =
+    System.getenv(envName) ?: localProperties.getProperty(envName)
+
+version = prop("RELEASE_VERSION") ?: "0.1.0-local"
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/dgbarreto/stockapp-designsystem")
+            credentials {
+                username = prop("GITHUB_ACTOR")
+                password = prop("GITHUB_TOKEN")
+            }
+        }
+    }
+}
 
 kotlin {
     jvm("desktop")
