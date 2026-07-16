@@ -6,9 +6,15 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinxSerialization)
+    `maven-publish`
 }
 
+group = "com.danilobarreto.stockapp"
+version = "0.1.0"
+
 kotlin {
+    jvm("desktop")
+
     listOf(
         iosArm64(),
         iosSimulatorArm64()
@@ -37,8 +43,13 @@ kotlin {
     }
 
     sourceSets {
+        val desktopMain by getting
+
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
+            implementation(libs.ktor.client.okhttp)
+        }
+        desktopMain.dependencies {
             implementation(libs.ktor.client.okhttp)
         }
         commonMain.dependencies {
@@ -54,6 +65,8 @@ kotlin {
             implementation(libs.ktor.client.contentNegotiation)
             implementation(libs.ktor.serialization.kotlinxJson)
             implementation(libs.kotlinx.serialization.json)
+
+            implementation("com.danilobarreto.stockapp:designsystem:0.1.0")
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)

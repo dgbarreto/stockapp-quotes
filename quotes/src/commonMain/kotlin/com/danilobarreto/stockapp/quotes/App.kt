@@ -16,8 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.resources.painterResource
 
-import stockappquotes.quotes.generated.resources.Res
-import stockappquotes.quotes.generated.resources.compose_multiplatform
+import com.danilobarreto.stockapp.quotes.generated.resources.Res
+import com.danilobarreto.stockapp.quotes.generated.resources.compose_multiplatform
 
 @Composable
 @Preview
