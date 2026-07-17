@@ -89,7 +89,7 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinxJson)
             implementation(libs.kotlinx.serialization.json)
 
-            implementation("com.danilobarreto.stockapp:designsystem:0.1.0")
+            implementation("com.danilobarreto.stockapp:designsystem:0.1.1")
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
