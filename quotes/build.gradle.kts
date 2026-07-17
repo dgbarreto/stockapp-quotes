@@ -26,7 +26,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/dgbarreto/stockapp-designsystem")
+            url = uri("https://maven.pkg.github.com/dgbarreto/stockapp-quotes")
             credentials {
                 username = prop("GITHUB_ACTOR")
                 password = prop("GITHUB_TOKEN")

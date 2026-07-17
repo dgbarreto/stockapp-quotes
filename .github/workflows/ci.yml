@@ -28,6 +28,9 @@ jobs:
 
       - name: Build and test
         run: ./gradlew build
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
 
       - name: Extract version from tag
         if: startsWith(github.ref, 'refs/tags/v')
@@ -35,7 +38,7 @@ jobs:
 
       - name: Publish to GitHub Packages
         if: startsWith(github.ref, 'refs/tags/v')
-        run: ./gradlew :designsystem:publish
+        run: ./gradlew :quotes:publish
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
