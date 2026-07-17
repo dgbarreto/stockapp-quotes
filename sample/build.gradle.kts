@@ -32,7 +32,7 @@ kotlin {
             implementation(libs.compose.ui)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
 
-            implementation("com.danilobarreto.stockapp:designsystem:0.1.0")
+            implementation("com.danilobarreto.stockapp:designsystem:0.1.1")
         }
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
