@@ -31,7 +31,13 @@ kotlin {
             implementation(libs.compose.material3)
             implementation(libs.compose.ui)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.contentNegotiation)
+            implementation(libs.ktor.serialization.kotlinxJson)
+            implementation(libs.ktor.client.auth)
+            implementation(libs.kotlinx.serialization.json)
 
+            implementation("com.danilobarreto.stockapp:auth:0.1.0")
             implementation("com.danilobarreto.stockapp:designsystem:0.1.2")
         }
         androidMain.dependencies {
