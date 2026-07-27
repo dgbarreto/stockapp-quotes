@@ -34,10 +34,7 @@ import com.danilobarreto.stockapp.designsystem.util.toDecimalString
 import com.danilobarreto.stockapp.quotes.domain.QuoteFundamentals
 
 @Composable
-fun QuoteScreen(viewModel: QuotesViewModel){
-    val uiState by viewModel.uiState.collectAsState()
-    var ticker by remember { mutableStateOf("") }
-
+fun QuoteScreen(viewModel: QuotesViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -46,40 +43,48 @@ fun QuoteScreen(viewModel: QuotesViewModel){
             .padding(16.dp)) {
 
         Text("Cotações", style = StockAppTypography.titleLarge, color = StockAppColors.textPrimary)
+    }
+}
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            OutlinedTextField(
-                value = ticker,
-                onValueChange = { ticker = it.uppercase() },
-                label = { Text("Ticker") },
-                modifier = Modifier.weight(1f)
-            )
-            Button(
-                onClick = { viewModel.search(ticker) },
-                modifier = Modifier.padding(start = 8.dp)
-            ) {
-                Text("Buscar")
-            }
+
+@Composable
+fun QuoteContent(viewModel: QuotesViewModel){
+    val uiState by viewModel.uiState.collectAsState()
+    var ticker by remember { mutableStateOf("") }
+
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        OutlinedTextField(
+            value = ticker,
+            onValueChange = { ticker = it.uppercase() },
+            label = { Text("Ticker") },
+            modifier = Modifier.weight(1f)
+        )
+        Button(
+            onClick = { viewModel.search(ticker) },
+            modifier = Modifier.padding(start = 8.dp)
+        ) {
+            Text("Buscar")
         }
+    }
 
-        when(val state = uiState){
-            is QuoteUiState.Idle -> {
-                Text(
-                    "Digite um ticker para ver os indicadores.",
-                    style = StockAppTypography.bodyMedium,
-                    color = StockAppColors.textMuted,
-                    modifier = Modifier.padding(top = 24.dp)
-                )
-            }
-            is QuoteUiState.Loading -> {
-                CircularProgressIndicator(modifier = Modifier.padding(top = 24.dp))
-            }
-            is QuoteUiState.Error -> {
-                StockAppErrorBanner(state.message, modifier = Modifier.padding(top = 24.dp))
-            }
-            is QuoteUiState.Success -> {
-                QuoteFundamentasCard(state.fundamentals)
-            }
+    when(val state = uiState){
+        is QuoteUiState.Idle -> {
+            Text(
+                "Digite um ticker para ver os indicadores.",
+                style = StockAppTypography.bodyMedium,
+                color = StockAppColors.textMuted,
+                modifier = Modifier.padding(top = 24.dp)
+            )
+        }
+        is QuoteUiState.Loading -> {
+            CircularProgressIndicator(modifier = Modifier.padding(top = 24.dp))
+        }
+        is QuoteUiState.Error -> {
+            StockAppErrorBanner(state.message, modifier = Modifier.padding(top = 24.dp))
+        }
+        is QuoteUiState.Success -> {
+            QuoteFundamentasCard(state.fundamentals)
         }
     }
 }

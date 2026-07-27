@@ -10,8 +10,12 @@ import com.danilobarreto.stockapp.auth.data.TokenStorage
 import com.danilobarreto.stockapp.auth.presentation.LoginScreen
 import com.danilobarreto.stockapp.auth.presentation.LoginViewModel
 import com.danilobarreto.stockapp.designsystem.theme.StockAppTheme
+import com.danilobarreto.stockapp.quotes.data.FiisApiClient
+import com.danilobarreto.stockapp.quotes.data.FiisRepositoryImpl
 import com.danilobarreto.stockapp.quotes.data.QuotesApiClient
 import com.danilobarreto.stockapp.quotes.data.QuotesRepositoryImpl
+import com.danilobarreto.stockapp.quotes.presentation.AssetQuotesScreen
+import com.danilobarreto.stockapp.quotes.presentation.FiisViewModel
 import com.danilobarreto.stockapp.quotes.presentation.QuoteScreen
 import com.danilobarreto.stockapp.quotes.presentation.QuotesViewModel
 
@@ -27,6 +31,11 @@ fun SampleApp() {
         QuotesRepositoryImpl(QuotesApiClient(baseUrl = sampleBaseUrl(), httpClient = httpClient))
     }
 
+    val fiisRepository = remember {
+        FiisRepositoryImpl(FiisApiClient(baseUrl = sampleBaseUrl(), httpClient = httpClient))
+    }
+
+    val fiisViewModel = remember { FiisViewModel(fiisRepository) }
     val loginViewModel = remember { LoginViewModel(authRepository) }
     val quotesViewModel = remember { QuotesViewModel(quotesRepository) }
 
@@ -34,7 +43,7 @@ fun SampleApp() {
 
     StockAppTheme {
         if (isLoggedIn) {
-            QuoteScreen(quotesViewModel)
+            AssetQuotesScreen(quotesViewModel, fiisViewModel)
         } else {
             LoginScreen(
                 viewModel = loginViewModel,
