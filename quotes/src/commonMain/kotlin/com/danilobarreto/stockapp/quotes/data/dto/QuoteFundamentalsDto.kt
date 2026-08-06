@@ -18,5 +18,8 @@ data class QuoteFundamentalsDto(
     @SerialName("net_debt_ebitda") val netDebtEbitda: Double?,
     val lpa: Double?,
     val vpa: Double?,
-    val ebitda: Double?
+    val ebitda: Double?,
+    @SerialName("p_sr") val priceToSalesRatio: Double?,
+    @SerialName("cagr_earnings_5y") val earningsCagr5y: Double?,
+    val dividendPerShareTtm: Double?,
 )

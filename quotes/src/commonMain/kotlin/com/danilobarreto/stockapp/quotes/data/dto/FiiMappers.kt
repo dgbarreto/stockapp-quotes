@@ -14,7 +14,9 @@ fun FiiDto.toDomain(): Fii = Fii(
     dividendYieldTtm = dividendYieldTtm,
     netAssetValue = netAssetValue,
     sharesOutstanding = sharesOutstanding,
-    totalShareholders = totalShareholders
+    totalShareholders = totalShareholders,
+    dividendPerShareTtm = dividendPerShareTtm,
+    distributionGrowthRate = distributionGrowthRate,
 )
 
 fun FiiHistoryEntryDto.toDomain(): FiiHistoryEntry = FiiHistoryEntry(
@@ -30,6 +32,10 @@ fun FiiHistoryEntryDto.toDomain(): FiiHistoryEntry = FiiHistoryEntry(
         dividendYieldTtm = dividendYieldTtm,
         netAssetValue = netAssetValue,
         sharesOutstanding = sharesOutstanding,
-        totalShareholders = totalShareholders
+        totalShareholders = totalShareholders,
+        // FiiSnapshot (histórico) não guarda esses 2 campos — só existem na
+        // resposta ao vivo do /fiis/:ticker. Null aqui de propósito.
+        dividendPerShareTtm = null,
+        distributionGrowthRate = null,
     ),
 )

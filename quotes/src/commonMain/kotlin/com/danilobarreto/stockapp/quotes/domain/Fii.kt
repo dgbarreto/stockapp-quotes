@@ -11,5 +11,7 @@ data class Fii(
     val dividendYieldTtm: Double?,
     val netAssetValue: Double?,
     val sharesOutstanding: Double?,
-    val totalShareholders: Int?
+    val totalShareholders: Int?,
+    val dividendPerShareTtm: Double?,
+    val distributionGrowthRate: Double?,
 )

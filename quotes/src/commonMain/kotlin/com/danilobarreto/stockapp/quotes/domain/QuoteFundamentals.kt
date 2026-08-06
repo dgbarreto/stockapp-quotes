@@ -14,5 +14,8 @@ data class QuoteFundamentals(
     val netDebtEbitda: Double?,
     val lpa: Double?,
     val vpa: Double?,
-    val ebitda: Double?
+    val ebitda: Double?,
+    val priceToSalesRatio: Double?,
+    val earningsCagr5y: Double?,
+    val dividendPerShareTtm: Double?,
 )
