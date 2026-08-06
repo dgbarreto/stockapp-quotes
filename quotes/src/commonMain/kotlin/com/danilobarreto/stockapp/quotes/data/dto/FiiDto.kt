@@ -15,5 +15,7 @@ data class FiiDto(
     @SerialName("dividend_yield_ttm") val dividendYieldTtm: Double?,
     @SerialName("net_asset_value") val netAssetValue: Double?,
     @SerialName("shares_outstanding") val sharesOutstanding: Double?,
-    @SerialName("total_shareholders") val totalShareholders: Int?
+    @SerialName("total_shareholders") val totalShareholders: Int?,
+    val dividendPerShareTtm: Double?,
+    val distributionGrowthRate: Double?,
 )
