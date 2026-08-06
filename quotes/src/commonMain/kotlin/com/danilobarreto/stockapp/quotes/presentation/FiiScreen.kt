@@ -3,6 +3,7 @@ package com.danilobarreto.stockapp.quotes.presentation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -26,7 +27,7 @@ import com.danilobarreto.stockapp.designsystem.util.toDecimalString
 import com.danilobarreto.stockapp.quotes.domain.Fii
 
 @Composable
-fun FiiContent(viewModel: FiisViewModel){
+fun FiiContent(viewModel: FiisViewModel, onViewValuation: (Fii) -> Unit){
     val uiState by viewModel.uiState.collectAsState()
     var ticker by remember { mutableStateOf("") }
 
@@ -46,12 +47,12 @@ fun FiiContent(viewModel: FiisViewModel){
         is FiiUiState.Idle -> Text("Digite o ticker de um FII para ver os indicadores.", style = StockAppTypography.bodyMedium, color = StockAppColors.textMuted, modifier = Modifier.padding(top = 24.dp))
         is FiiUiState.Loading -> CircularProgressIndicator(modifier = Modifier.padding(top = 24.dp))
         is FiiUiState.Error -> StockAppErrorBanner(state.message, modifier = Modifier.padding(top = 24.dp))
-        is FiiUiState.Success -> FiiCard(state.fii)
+        is FiiUiState.Success -> FiiCard(state.fii, onViewValuation)
     }
 }
 
 @Composable
-private fun FiiCard(fii: Fii){
+private fun FiiCard(fii: Fii, onViewValuation: (Fii) -> Unit){
     StockAppCard(modifier = Modifier.padding(top = 24.dp)){
         Text(fii.ticker, style = StockAppTypography.titleMedium, color = StockAppColors.textPrimary)
         Text(fii.name, style = StockAppTypography.bodyMedium, color = StockAppColors.textMuted)
@@ -70,6 +71,10 @@ private fun FiiCard(fii: Fii){
             StockAppKeyValueRow("Cotistas", fii.totalShareholders?.toString() ?: "—")
             StockAppKeyValueRow("Segmento", fii.segment ?: "—")
             StockAppKeyValueRow("Tipo de gestão", fii.managementType ?: "—")
+        }
+
+        Button(onClick = { onViewValuation(fii) }, modifier = Modifier.padding(top = 16.dp).fillMaxWidth()) {
+            Text("Ver valuation")
         }
     }
 }
