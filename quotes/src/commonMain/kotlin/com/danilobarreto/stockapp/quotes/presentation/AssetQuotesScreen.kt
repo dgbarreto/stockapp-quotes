@@ -20,13 +20,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.danilobarreto.stockapp.designsystem.theme.StockAppColors
 import com.danilobarreto.stockapp.designsystem.theme.StockAppTypography
+import com.danilobarreto.stockapp.quotes.domain.Fii
+import com.danilobarreto.stockapp.quotes.domain.QuoteFundamentals
 
 enum class AssetType { Stock, Fii }
 
 @Composable
 fun AssetQuotesScreen(
     quotesViewModel: QuotesViewModel,
-    fiisViewModel: FiisViewModel
+    fiisViewModel: FiisViewModel,
+    onViewStockValuation: (QuoteFundamentals) -> Unit,
+    onViewFiiValuation: (Fii) -> Unit,
 ){
     var selectedAssetType by remember { mutableStateOf(AssetType.Stock) }
 
@@ -51,8 +55,8 @@ fun AssetQuotesScreen(
         }
 
         when (selectedAssetType) {
-            AssetType.Stock -> QuoteContent(quotesViewModel)
-            AssetType.Fii -> FiiContent(fiisViewModel)
+            AssetType.Stock -> QuoteContent(quotesViewModel, onViewStockValuation)
+            AssetType.Fii -> FiiContent(fiisViewModel, onViewFiiValuation)
         }
     }
 }

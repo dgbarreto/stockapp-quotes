@@ -34,24 +34,9 @@ import com.danilobarreto.stockapp.designsystem.util.toDecimalString
 import com.danilobarreto.stockapp.quotes.domain.QuoteFundamentals
 
 @Composable
-fun QuoteScreen(viewModel: QuotesViewModel) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(StockAppColors.surface1)
-            .safeContentPadding()
-            .padding(16.dp)) {
-
-        Text("Cotações", style = StockAppTypography.titleLarge, color = StockAppColors.textPrimary)
-    }
-}
-
-
-@Composable
-fun QuoteContent(viewModel: QuotesViewModel){
+fun QuoteContent(viewModel: QuotesViewModel, onViewValuation: (QuoteFundamentals) -> Unit){
     val uiState by viewModel.uiState.collectAsState()
     var ticker by remember { mutableStateOf("") }
-
 
     Row(verticalAlignment = Alignment.CenterVertically) {
         OutlinedTextField(
@@ -84,13 +69,13 @@ fun QuoteContent(viewModel: QuotesViewModel){
             StockAppErrorBanner(state.message, modifier = Modifier.padding(top = 24.dp))
         }
         is QuoteUiState.Success -> {
-            QuoteFundamentasCard(state.fundamentals)
+            QuoteFundamentasCard(state.fundamentals, onViewValuation)
         }
     }
 }
 
 @Composable
-private fun QuoteFundamentasCard(fundamentals: QuoteFundamentals){
+private fun QuoteFundamentasCard(fundamentals: QuoteFundamentals, onViewValuation: (QuoteFundamentals) -> Unit){
     StockAppCard(modifier = Modifier.padding(top = 24.dp)){
         Text(fundamentals.ticker, style = StockAppTypography.titleMedium, color = StockAppColors.textPrimary)
         Text(
@@ -111,6 +96,13 @@ private fun QuoteFundamentasCard(fundamentals: QuoteFundamentals){
             StockAppKeyValueRow("Dívida líq./EBITDA", fundamentals.netDebtEbitda?.toDecimalString() ?: "—")
             StockAppKeyValueRow("LPA", fundamentals.lpa?.toDecimalString() ?: "—")
             StockAppKeyValueRow("VPA", fundamentals.vpa?.toDecimalString() ?: "—")
+        }
+
+        Button(
+            onClick = { onViewValuation(fundamentals) },
+            modifier = Modifier.padding(top = 16.dp).fillMaxWidth()
+        ) {
+            Text("Ver valuation")
         }
     }
 }
