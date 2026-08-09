@@ -17,7 +17,6 @@ import com.danilobarreto.stockapp.quotes.data.QuotesRepositoryImpl
 import com.danilobarreto.stockapp.quotes.presentation.AssetQuotesScreen
 import com.danilobarreto.stockapp.quotes.presentation.AssetType
 import com.danilobarreto.stockapp.quotes.presentation.FiisViewModel
-import com.danilobarreto.stockapp.quotes.presentation.QuoteScreen
 import com.danilobarreto.stockapp.quotes.presentation.QuotesViewModel
 
 @Composable
