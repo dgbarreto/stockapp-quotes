@@ -15,6 +15,7 @@ import com.danilobarreto.stockapp.quotes.data.FiisRepositoryImpl
 import com.danilobarreto.stockapp.quotes.data.QuotesApiClient
 import com.danilobarreto.stockapp.quotes.data.QuotesRepositoryImpl
 import com.danilobarreto.stockapp.quotes.presentation.AssetQuotesScreen
+import com.danilobarreto.stockapp.quotes.presentation.AssetType
 import com.danilobarreto.stockapp.quotes.presentation.FiisViewModel
 import com.danilobarreto.stockapp.quotes.presentation.QuoteScreen
 import com.danilobarreto.stockapp.quotes.presentation.QuotesViewModel
@@ -43,7 +44,7 @@ fun SampleApp() {
 
     StockAppTheme {
         if (isLoggedIn) {
-            AssetQuotesScreen(quotesViewModel, fiisViewModel)
+            AssetQuotesScreen(quotesViewModel, fiisViewModel, onViewStockValuation = {}, onViewFiiValuation = {}, selectedAssetType = AssetType.Stock, onAssetTypeSelected = {})
         } else {
             LoginScreen(
                 viewModel = loginViewModel,
