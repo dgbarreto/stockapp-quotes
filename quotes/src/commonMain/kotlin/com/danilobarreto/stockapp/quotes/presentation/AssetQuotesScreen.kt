@@ -31,9 +31,9 @@ fun AssetQuotesScreen(
     fiisViewModel: FiisViewModel,
     onViewStockValuation: (QuoteFundamentals) -> Unit,
     onViewFiiValuation: (Fii) -> Unit,
+    selectedAssetType: AssetType,
+    onAssetTypeSelected: (AssetType) -> Unit,
 ){
-    var selectedAssetType by remember { mutableStateOf(AssetType.Stock) }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -50,8 +50,8 @@ fun AssetQuotesScreen(
                 .background(StockAppColors.border, RoundedCornerShape(10.dp))
                 .padding(3.dp)
         ) {
-            AssetTypeSegment("Ações", selectedAssetType == AssetType.Stock, Modifier.weight(1f)) { selectedAssetType = AssetType.Stock }
-            AssetTypeSegment("FIIs", selectedAssetType == AssetType.Fii, Modifier.weight(1f)) { selectedAssetType = AssetType.Fii }
+            AssetTypeSegment("Ações", selectedAssetType == AssetType.Stock, Modifier.weight(1f)) { onAssetTypeSelected(AssetType.Stock) }
+            AssetTypeSegment("FIIs", selectedAssetType == AssetType.Fii, Modifier.weight(1f)) { onAssetTypeSelected(AssetType.Fii) }
         }
 
         when (selectedAssetType) {
