@@ -11,6 +11,9 @@ on:
 
 jobs:
   ci:
+    permissions:
+      contents: read
+      packages: write
     uses: dgbarreto/stockapp-app/.github/workflows/kmp-module-ci.yml@main
     with:
       module: quotes
