@@ -7,3 +7,9 @@ on:
 jobs:
   test:
     uses: dgbarreto/stockapp-app/.github/workflows/test-reusable.yml@debug/minimal-reusable
+    with:
+      module: quotes
+      use-konan-cache: true
+    secrets:
+      GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
