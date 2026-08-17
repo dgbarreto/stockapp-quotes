@@ -1,0 +1,9 @@
+name: Test Reusable Caller
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    uses: dgbarreto/stockapp-app/.github/workflows/test-reusable.yml@debug/minimal-reusable
