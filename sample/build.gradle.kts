@@ -38,7 +38,7 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
 
             implementation("com.danilobarreto.stockapp:auth:0.1.0")
-            implementation("com.danilobarreto.stockapp:designsystem:0.1.2")
+            implementation("com.danilobarreto.stockapp:designsystem:0.3.0")
         }
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
