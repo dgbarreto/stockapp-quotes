@@ -2,20 +2,15 @@ package com.danilobarreto.stockapp.quotes.presentation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.danilobarreto.stockapp.designsystem.components.StockAppCard
@@ -27,24 +22,23 @@ import com.danilobarreto.stockapp.designsystem.util.toDecimalString
 import com.danilobarreto.stockapp.quotes.domain.Fii
 
 @Composable
-fun FiiContent(viewModel: FiisViewModel, onViewValuation: (Fii) -> Unit){
-    val uiState by viewModel.uiState.collectAsState()
-    var ticker by remember { mutableStateOf("") }
+fun FiiContent(
+    viewModel: FiisViewModel,
+    isSearching: Boolean,
+    onViewValuation: (Fii) -> Unit,
+    onOpenDetail: (String) -> Unit,
+) {
+    LaunchedEffect(Unit) { viewModel.loadPopular() }
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        OutlinedTextField(
-            value = ticker,
-            onValueChange = { ticker = it.uppercase() },
-            label = { Text("Ticker") },
-            modifier = Modifier.weight(1f)
-        )
-        Button(onClick = { viewModel.search(ticker) }, modifier = Modifier.padding(start = 8.dp)) {
-            Text("Buscar")
-        }
+    if (!isSearching) {
+        val listState by viewModel.listUiState.collectAsState()
+        AssetListSection(listState, onItemClick = onOpenDetail)
+        return
     }
 
-    when(val state = uiState){
-        is FiiUiState.Idle -> Text("Digite o ticker de um FII para ver os indicadores.", style = StockAppTypography.bodyMedium, color = StockAppColors.textMuted, modifier = Modifier.padding(top = 24.dp))
+    val uiState by viewModel.uiState.collectAsState()
+    when (val state = uiState) {
+        is FiiUiState.Idle -> Text("Aperte buscar para ver os indicadores.", style = StockAppTypography.bodyMedium, color = StockAppColors.textMuted, modifier = Modifier.padding(top = 24.dp))
         is FiiUiState.Loading -> CircularProgressIndicator(modifier = Modifier.padding(top = 24.dp))
         is FiiUiState.Error -> StockAppErrorBanner(state.message, modifier = Modifier.padding(top = 24.dp))
         is FiiUiState.Success -> FiiCard(state.fii, onViewValuation)
