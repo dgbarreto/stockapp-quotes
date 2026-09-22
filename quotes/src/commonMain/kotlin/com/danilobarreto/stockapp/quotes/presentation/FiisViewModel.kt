@@ -2,6 +2,7 @@ package com.danilobarreto.stockapp.quotes.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.danilobarreto.stockapp.quotes.domain.AssetSummary
 import com.danilobarreto.stockapp.quotes.domain.Fii
 import com.danilobarreto.stockapp.quotes.domain.FiisRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +22,20 @@ class FiisViewModel(
 ): ViewModel() {
     private val _uiState = MutableStateFlow<FiiUiState>(FiiUiState.Idle)
     val uiState: StateFlow<FiiUiState> = _uiState.asStateFlow()
+
+    private val _listUiState = MutableStateFlow<AssetListUiState>(AssetListUiState.Loading)
+    val listUiState: StateFlow<AssetListUiState> = _listUiState.asStateFlow()
+
+    fun loadPopular() {
+        viewModelScope.launch {
+            _listUiState.value = AssetListUiState.Loading
+            _listUiState.value = try {
+                AssetListUiState.Success(repository.getPopularFiis(8))
+            } catch (e: Exception) {
+                AssetListUiState.Error(e.message ?: "Erro ao carregar FIIs")
+            }
+        }
+    }
 
     fun search(ticker: String) {
         if (ticker.isBlank()) return
