@@ -5,47 +5,82 @@ import androidx.lifecycle.viewModelScope
 import com.danilobarreto.stockapp.quotes.domain.AssetSummary
 import com.danilobarreto.stockapp.quotes.domain.Fii
 import com.danilobarreto.stockapp.quotes.domain.FiisRepository
+import io.ktor.client.plugins.ClientRequestException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
-sealed interface FiiUiState {
-    data object Idle: FiiUiState
-    data object Loading: FiiUiState
-    data class Success(val fii: Fii): FiiUiState
-    data class Error(val message: String): FiiUiState
-}
 
 class FiisViewModel(
     private val repository: FiisRepository
 ): ViewModel() {
-    private val _uiState = MutableStateFlow<FiiUiState>(FiiUiState.Idle)
-    val uiState: StateFlow<FiiUiState> = _uiState.asStateFlow()
-
     private val _listUiState = MutableStateFlow<AssetListUiState>(AssetListUiState.Loading)
     val listUiState: StateFlow<AssetListUiState> = _listUiState.asStateFlow()
 
-    fun loadPopular() {
-        viewModelScope.launch {
-            _listUiState.value = AssetListUiState.Loading
-            _listUiState.value = try {
-                AssetListUiState.Success(repository.getPopularFiis(8))
+    private val _query = MutableStateFlow("")
+    val query: StateFlow<String> = _query.asStateFlow()
+
+    private val _searchState = MutableStateFlow<AssetSearchUiState>(AssetSearchUiState.Idle)
+    val searchState: StateFlow<AssetSearchUiState> = _searchState.asStateFlow()
+
+    private var searchJob: Job? = null
+
+    fun onQueryChange(value: String) {
+        _query.value = value.trim().uppercase()
+        scheduleSearch(debounce = true)
+    }
+
+    /** Tecla "Buscar" do teclado: pula o debounce. */
+    fun searchNow() = scheduleSearch(debounce = false)
+
+    private fun scheduleSearch(debounce: Boolean) {
+        searchJob?.cancel()
+        _searchState.value = AssetSearchUiState.Idle
+        val ticker = _query.value
+        if (!ticker.isFullTicker() || ticker in loadedTickers()) return
+
+        searchJob = viewModelScope.launch {
+            if (debounce) delay(SEARCH_DEBOUNCE_MS)
+            _searchState.value = AssetSearchUiState.Loading
+            _searchState.value = try {
+                val fii = repository.getFii(ticker)
+                loadPopular(silent = true)
+                AssetSearchUiState.Found(ticker = fii.ticker, price = fii.closePrice, name = fii.name)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: ClientRequestException) {
+                AssetSearchUiState.NotFound(ticker)
             } catch (e: Exception) {
-                AssetListUiState.Error(e.message ?: "Erro ao carregar FIIs")
+                AssetSearchUiState.Error(e.message ?: "Erro ao buscar $ticker")
             }
         }
     }
 
-    fun search(ticker: String) {
-        if (ticker.isBlank()) return
+    private fun loadedTickers(): Set<String> =
+        (_listUiState.value as? AssetListUiState.Success)?.items?.mapTo(mutableSetOf()) { it.ticker }.orEmpty()
 
+    fun loadPopular(silent: Boolean = false) {
         viewModelScope.launch {
-            _uiState.value = FiiUiState.Loading
-            _uiState.value = try {
-                FiiUiState.Success(repository.getFii(ticker))
+            if (!silent) _listUiState.value = AssetListUiState.Loading
+            try {
+                val items = repository.getPopularFiis(8)
+                _listUiState.value = AssetListUiState.Success(items)
+                // O ticker buscado já está na lista (entrou no known_tickers): o cartão
+                // padrão assume e a linha de resultado da busca sai de cena.
+                if (items.any { it.ticker == _query.value }) {
+                    searchJob?.cancel()
+                    _searchState.value = AssetSearchUiState.Idle
+                }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
-                FiiUiState.Error(e.message ?: "Erro ao buscar FII")
+                if (!silent) {
+                    _listUiState.value = AssetListUiState.Error(e.message ?: "Erro ao carregar FIIs")
+                }
             }
         }
     }

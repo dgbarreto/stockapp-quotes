@@ -18,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,19 +51,20 @@ fun AssetQuotesScreen(
     selectedAssetType: AssetType,
     onAssetTypeSelected: (AssetType) -> Unit,
 ) {
-    var stockQuery by remember { mutableStateOf("") }
-    var fiiQuery by remember { mutableStateOf("") }
+    val stockQuery by quotesViewModel.query.collectAsState()
+    val fiiQuery by fiisViewModel.query.collectAsState()
     val query = if (selectedAssetType == AssetType.Stock) stockQuery else fiiQuery
 
     Column(modifier = Modifier.fillMaxSize().background(StockAppColors.surface1)) {
         QuotesHeader(
             query = query,
             onQueryChange = {
-                if (selectedAssetType == AssetType.Stock) stockQuery = it else fiiQuery = it
+                if (selectedAssetType == AssetType.Stock) quotesViewModel.onQueryChange(it)
+                else fiisViewModel.onQueryChange(it)
             },
             onSearch = {
-                if (selectedAssetType == AssetType.Stock) quotesViewModel.search(stockQuery)
-                else fiisViewModel.search(fiiQuery)
+                if (selectedAssetType == AssetType.Stock) quotesViewModel.searchNow()
+                else fiisViewModel.searchNow()
             },
         )
 
@@ -79,18 +81,8 @@ fun AssetQuotesScreen(
             )
 
             when (selectedAssetType) {
-                AssetType.Stock -> QuoteContent(
-                    viewModel = quotesViewModel,
-                    isSearching = stockQuery.isNotBlank(),
-                    onViewValuation = onViewStockValuation,
-                    onOpenDetail = onOpenStockDetail,
-                )
-                AssetType.Fii -> FiiContent(
-                    viewModel = fiisViewModel,
-                    isSearching = fiiQuery.isNotBlank(),
-                    onViewValuation = onViewFiiValuation,
-                    onOpenDetail = onOpenFiiDetail,
-                )
+                AssetType.Stock -> QuoteContent(viewModel = quotesViewModel, onOpenDetail = onOpenStockDetail)
+                AssetType.Fii -> FiiContent(viewModel = fiisViewModel, onOpenDetail = onOpenFiiDetail)
             }
         }
     }

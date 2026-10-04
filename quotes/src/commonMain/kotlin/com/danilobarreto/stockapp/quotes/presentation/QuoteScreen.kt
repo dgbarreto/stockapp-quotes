@@ -24,69 +24,13 @@ import com.danilobarreto.stockapp.quotes.domain.QuoteFundamentals
 @Composable
 fun QuoteContent(
     viewModel: QuotesViewModel,
-    isSearching: Boolean,
-    onViewValuation: (QuoteFundamentals) -> Unit,
     onOpenDetail: (String) -> Unit,
 ) {
     LaunchedEffect(Unit) { viewModel.loadPopular() }
 
-    if (!isSearching) {
-        val listState by viewModel.listUiState.collectAsState()
-        AssetListSection(listState, onItemClick = onOpenDetail)
-        return
-    }
+    val listState by viewModel.listUiState.collectAsState()
+    val query by viewModel.query.collectAsState()
+    val searchState by viewModel.searchState.collectAsState()
 
-    val uiState by viewModel.uiState.collectAsState()
-    when (val state = uiState) {
-        is QuoteUiState.Idle -> {
-            Text(
-                "Aperte buscar para ver os indicadores.",
-                style = StockAppTypography.bodyMedium,
-                color = StockAppColors.textMuted,
-                modifier = Modifier.padding(top = 24.dp)
-            )
-        }
-        is QuoteUiState.Loading -> {
-            CircularProgressIndicator(modifier = Modifier.padding(top = 24.dp))
-        }
-        is QuoteUiState.Error -> {
-            StockAppErrorBanner(state.message, modifier = Modifier.padding(top = 24.dp))
-        }
-        is QuoteUiState.Success -> {
-            QuoteFundamentasCard(state.fundamentals, onViewValuation)
-        }
-    }
-}
-
-@Composable
-private fun QuoteFundamentasCard(fundamentals: QuoteFundamentals, onViewValuation: (QuoteFundamentals) -> Unit){
-    StockAppCard(modifier = Modifier.padding(top = 24.dp)){
-        Text(fundamentals.ticker, style = StockAppTypography.titleMedium, color = StockAppColors.textPrimary)
-        Text(
-            "R$ ${fundamentals.closePrice.toDecimalString()}",
-            style = StockAppTypography.titleLarge,
-            color = StockAppColors.textPrimary,
-            modifier = Modifier.padding(top = 4.dp)
-        )
-
-        Column(modifier = Modifier.padding(top = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            StockAppKeyValueRow("P/L", fundamentals.pl?.toDecimalString() ?: "—")
-            StockAppKeyValueRow("P/VP", fundamentals.pvp?.toDecimalString() ?: "—")
-            StockAppKeyValueRow("EV/EBITDA", fundamentals.evEbitda?.toDecimalString() ?: "—")
-            StockAppKeyValueRow("ROE", fundamentals.roe?.let { "${it.toDecimalString()}%" } ?: "—")
-            StockAppKeyValueRow("ROIC", fundamentals.roic?.let { "${it.toDecimalString()}%" } ?: "—")
-            StockAppKeyValueRow("Margem líquida", fundamentals.netMargin?.let { "${it.toDecimalString()}%" } ?: "—")
-            StockAppKeyValueRow("Margem bruta", fundamentals.grossMargin?.let { "${it.toDecimalString()}%" } ?: "—")
-            StockAppKeyValueRow("Dívida líq./EBITDA", fundamentals.netDebtEbitda?.toDecimalString() ?: "—")
-            StockAppKeyValueRow("LPA", fundamentals.lpa?.toDecimalString() ?: "—")
-            StockAppKeyValueRow("VPA", fundamentals.vpa?.toDecimalString() ?: "—")
-        }
-
-        Button(
-            onClick = { onViewValuation(fundamentals) },
-            modifier = Modifier.padding(top = 16.dp).fillMaxWidth()
-        ) {
-            Text("Ver valuation")
-        }
-    }
+    AssetSearchResults(listState, query, searchState, onItemClick = onOpenDetail)
 }
