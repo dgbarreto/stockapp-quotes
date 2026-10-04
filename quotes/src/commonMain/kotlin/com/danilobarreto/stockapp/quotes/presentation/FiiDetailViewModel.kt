@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.danilobarreto.stockapp.quotes.domain.AssetDetailSummary
 import com.danilobarreto.stockapp.quotes.domain.AssetIndicator
+import com.danilobarreto.stockapp.quotes.domain.Fii
 import com.danilobarreto.stockapp.quotes.domain.FiisRepository
 import com.danilobarreto.stockapp.quotes.domain.IndicatorFormat
 import com.danilobarreto.stockapp.quotes.domain.PriceRange
@@ -26,11 +27,15 @@ class FiiDetailViewModel(
     private val _pricesUiState = MutableStateFlow<PricesUiState>(PricesUiState.Loading)
     val pricesUiState: StateFlow<PricesUiState> = _pricesUiState.asStateFlow()
 
+    private val _fii = MutableStateFlow<Fii?>(null)
+    val fundamentals: StateFlow<Fii?> = _fii.asStateFlow()
+
     fun load(ticker: String) {
         viewModelScope.launch {
             _uiState.value = AssetDetailUiState.Loading
             _uiState.value = try {
                 val fii = repository.getFii(ticker)
+                _fii.value = fii
                 val recentCloses = repository.getPrices(ticker, PriceRange.ONE_MONTH).map { it.close }
                 val last = recentCloses.lastOrNull() ?: fii.closePrice
                 val prev = recentCloses.getOrNull(recentCloses.size - 2) ?: last
@@ -49,7 +54,7 @@ class FiiDetailViewModel(
                             AssetIndicator("P/VP", fii.pvp, IndicatorFormat.RATIO),
                             AssetIndicator("DY (12m)", fii.dividendYieldTtm, IndicatorFormat.PERCENT),
                             AssetIndicator("VP por cota", fii.bookValuePerShare, IndicatorFormat.CURRENCY),
-                            AssetIndicator("Preço-teto (Bazin, 6%)", priceCeiling, IndicatorFormat.CURRENCY),
+                            AssetIndicator("Preço-teto (Bazin, 6%)", priceCeiling, IndicatorFormat.CURRENCY, opensValuation = true),
                         ),
                     ),
                 )

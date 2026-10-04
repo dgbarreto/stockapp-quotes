@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.danilobarreto.stockapp.designsystem.components.StockAppAreaLineChart
@@ -21,6 +22,8 @@ import com.danilobarreto.stockapp.designsystem.components.StockAppErrorBanner
 import com.danilobarreto.stockapp.designsystem.theme.StockAppColors
 import com.danilobarreto.stockapp.designsystem.theme.StockAppShapes
 import com.danilobarreto.stockapp.designsystem.theme.StockAppTypography
+import com.danilobarreto.stockapp.designsystem.util.toBrPercent
+import com.danilobarreto.stockapp.designsystem.util.toBrl
 import com.danilobarreto.stockapp.designsystem.util.toDecimalString
 import com.danilobarreto.stockapp.quotes.domain.AssetSummary
 
@@ -73,8 +76,17 @@ private fun AssetSummaryCard(item: AssetSummary, onClick: () -> Unit) {
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(item.ticker, style = StockAppTypography.titleMedium, color = StockAppColors.textPrimary)
+            item.companyName?.let {
+                Text(
+                    it,
+                    style = StockAppTypography.bodySmall,
+                    color = StockAppColors.textSecondary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
             Text(
-                "R$ ${item.price.toDecimalString()}",
+                item.price.toBrl(),
                 style = StockAppTypography.titleLarge.copy(fontSize = 22.sp),
                 color = StockAppColors.textPrimary,
                 modifier = Modifier.padding(top = 2.dp),
@@ -82,7 +94,7 @@ private fun AssetSummaryCard(item: AssetSummary, onClick: () -> Unit) {
         }
         Column(horizontalAlignment = Alignment.End) {
             Text(
-                "$sign${item.changePercent.toDecimalString()}%",
+                item.changePercent.toBrPercent(),
                 style = StockAppTypography.labelMedium,
                 color = accentColor,
                 modifier = Modifier

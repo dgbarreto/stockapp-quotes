@@ -6,6 +6,7 @@ import com.danilobarreto.stockapp.quotes.domain.AssetDetailSummary
 import com.danilobarreto.stockapp.quotes.domain.AssetIndicator
 import com.danilobarreto.stockapp.quotes.domain.IndicatorFormat
 import com.danilobarreto.stockapp.quotes.domain.PriceRange
+import com.danilobarreto.stockapp.quotes.domain.QuoteFundamentals
 import com.danilobarreto.stockapp.quotes.domain.QuotesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -41,11 +42,15 @@ class QuoteDetailViewModel(
     private val _pricesUiState = MutableStateFlow<PricesUiState>(PricesUiState.Loading)
     val pricesUiState: StateFlow<PricesUiState> = _pricesUiState.asStateFlow()
 
+    private val _fundamentals = MutableStateFlow<QuoteFundamentals?>(null)
+    val fundamentals: StateFlow<QuoteFundamentals?> = _fundamentals.asStateFlow()
+
     fun load(ticker: String) {
         viewModelScope.launch {
             _uiState.value = AssetDetailUiState.Loading
             _uiState.value = try {
                 val fundamentals = repository.getFundamentals(ticker)
+                _fundamentals.value = fundamentals
                 val recentCloses = repository.getPrices(ticker, PriceRange.ONE_MONTH).map { it.close }
                 val last = recentCloses.lastOrNull() ?: fundamentals.closePrice
                 val prev = recentCloses.getOrNull(recentCloses.size - 2) ?: last
@@ -67,7 +72,7 @@ class QuoteDetailViewModel(
                             AssetIndicator("P/L", fundamentals.pl, IndicatorFormat.RATIO),
                             AssetIndicator("Dividend yield", dividendYieldPercent, IndicatorFormat.PERCENT),
                             AssetIndicator("P/VP", fundamentals.pvp, IndicatorFormat.RATIO),
-                            AssetIndicator("Preço-teto (Bazin, 6%)", priceCeiling, IndicatorFormat.CURRENCY),
+                            AssetIndicator("Preço-teto (Bazin, 6%)", priceCeiling, IndicatorFormat.CURRENCY, opensValuation = true),
                         ),
                     ),
                 )

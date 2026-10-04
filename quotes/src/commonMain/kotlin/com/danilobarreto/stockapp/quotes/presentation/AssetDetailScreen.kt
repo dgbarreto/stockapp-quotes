@@ -5,10 +5,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -33,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -51,8 +54,10 @@ import com.danilobarreto.stockapp.designsystem.util.toBrPercent
 import com.danilobarreto.stockapp.designsystem.util.toBrl
 import com.danilobarreto.stockapp.quotes.domain.AssetDetailSummary
 import com.danilobarreto.stockapp.quotes.domain.AssetIndicator
+import com.danilobarreto.stockapp.quotes.domain.Fii
 import com.danilobarreto.stockapp.quotes.domain.IndicatorFormat
 import com.danilobarreto.stockapp.quotes.domain.PriceRange
+import com.danilobarreto.stockapp.quotes.domain.QuoteFundamentals
 
 @Composable
 fun QuoteDetailScreen(
@@ -61,6 +66,7 @@ fun QuoteDetailScreen(
     onBack: () -> Unit,
     onNewOrder: () -> Unit,
     onAlert: () -> Unit,
+    onViewValuation: (QuoteFundamentals) -> Unit,
 ) {
     LaunchedEffect(ticker) { viewModel.load(ticker) }
     val uiState by viewModel.uiState.collectAsState()
@@ -76,6 +82,7 @@ fun QuoteDetailScreen(
         onBack = onBack,
         onNewOrder = onNewOrder,
         onAlert = onAlert,
+        onValuation = { viewModel.fundamentals.value?.let(onViewValuation) },
     )
 }
 
@@ -86,6 +93,7 @@ fun FiiDetailScreen(
     onBack: () -> Unit,
     onNewOrder: () -> Unit,
     onAlert: () -> Unit,
+    onViewValuation: (Fii) -> Unit,
 ) {
     LaunchedEffect(ticker) { viewModel.load(ticker) }
     val uiState by viewModel.uiState.collectAsState()
@@ -101,6 +109,7 @@ fun FiiDetailScreen(
         onBack = onBack,
         onNewOrder = onNewOrder,
         onAlert = onAlert,
+        onValuation = { viewModel.fundamentals.value?.let(onViewValuation) },
     )
 }
 
@@ -114,6 +123,7 @@ private fun AssetDetailScreen(
     onBack: () -> Unit,
     onNewOrder: () -> Unit,
     onAlert: () -> Unit,
+    onValuation: () -> Unit,
 ) {
     val summary = (uiState as? AssetDetailUiState.Success)?.summary
 
@@ -142,7 +152,7 @@ private fun AssetDetailScreen(
                         onRangeSelected = onRangeSelected,
                         positive = uiState.summary.changePercent >= 0,
                     )
-                    IndicatorsGrid(uiState.summary.indicators, modifier = Modifier.padding(top = 20.dp))
+                    IndicatorsGrid(uiState.summary.indicators, modifier = Modifier.padding(top = 20.dp), onValuation = onValuation)
 
                     Row(modifier = Modifier.fillMaxWidth().padding(top = 24.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         StockAppPrimaryButton(text = "Nova ordem", onClick = onNewOrder, modifier = Modifier.weight(1f))
@@ -274,11 +284,20 @@ private fun ChartCard(
 }
 
 @Composable
-private fun IndicatorsGrid(indicators: List<AssetIndicator>, modifier: Modifier = Modifier) {
+private fun IndicatorsGrid(indicators: List<AssetIndicator>, modifier: Modifier = Modifier, onValuation: () -> Unit) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
         indicators.chunked(2).forEach { rowItems ->
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                rowItems.forEach { indicator -> IndicatorCard(indicator, modifier = Modifier.weight(1f)) }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.height(IntrinsicSize.Min)
+                ) {
+                rowItems.forEach { indicator ->
+                    IndicatorCard(
+                        indicator,
+                        onClick = if (indicator.opensValuation) onValuation else null,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
                 if (rowItems.size == 1) Spacer(modifier = Modifier.weight(1f))
             }
         }
@@ -286,19 +305,41 @@ private fun IndicatorsGrid(indicators: List<AssetIndicator>, modifier: Modifier 
 }
 
 @Composable
-private fun IndicatorCard(indicator: AssetIndicator, modifier: Modifier = Modifier) {
+private fun IndicatorCard(indicator: AssetIndicator, onClick: (() -> Unit)?, modifier: Modifier = Modifier) {
+    val actionable = onClick != null
     Column(
         modifier = modifier
-            .background(StockAppColors.surface2, shape = StockAppShapes.cardRadius)
-            .padding(14.dp),
+            .clip(StockAppShapes.cardRadius)
+            .background(if (actionable) StockAppColors.primaryTint else StockAppColors.surface2)
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+            .padding(14.dp)
+            .fillMaxHeight(),
     ) {
-        Text(indicator.label, style = StockAppTypography.labelSmall, color = StockAppColors.textMuted)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                indicator.label,
+                style = StockAppTypography.labelSmall,
+                color = if (actionable) StockAppColors.primaryDeep else StockAppColors.textMuted,
+                modifier = Modifier.weight(1f),
+            )
+            if (actionable) {
+                Icon(StockAppIcons.ChevronRight, contentDescription = null, tint = StockAppColors.primaryDeep, modifier = Modifier.size(16.dp))
+            }
+        }
         Text(
             formatIndicatorValue(indicator),
             style = StockAppTypography.titleMedium,
-            color = StockAppColors.textPrimary,
+            color = if (actionable) StockAppColors.primaryDeep else StockAppColors.textPrimary,
             modifier = Modifier.padding(top = 4.dp),
         )
+        if (actionable) {
+            Text(
+                "Ver valuation",
+                style = StockAppTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                color = StockAppColors.primary,
+                modifier = Modifier.padding(top = 2.dp),
+            )
+        }
     }
 }
 

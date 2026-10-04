@@ -8,6 +8,7 @@ fun AssetSummaryDto.toDomain(): AssetSummary = AssetSummary(
     price = price,
     changePercent = changePercent,
     sparkline = sparkline,
+    companyName = companyName
 )
 
 fun PricePointDto.toDomain(): PricePoint = PricePoint(date = date, close = close)

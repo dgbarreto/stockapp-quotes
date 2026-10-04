@@ -6,6 +6,7 @@ data class AssetIndicator(
     val label: String,
     val value: Double?,
     val format: IndicatorFormat,
+    val opensValuation: Boolean = false,
 )
 
 data class AssetDetailSummary(
