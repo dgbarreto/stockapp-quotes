@@ -21,5 +21,6 @@ data class QuoteFundamentalsDto(
     val ebitda: Double?,
     @SerialName("p_sr") val priceToSalesRatio: Double?,
     @SerialName("cagr_earnings_5y") val earningsCagr5y: Double?,
+    @SerialName("company_name") val companyName: String? = null,
     val dividendPerShareTtm: Double?,
 )

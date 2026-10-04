@@ -10,6 +10,7 @@ data class AssetIndicator(
 
 data class AssetDetailSummary(
     val ticker: String,
+    val companyName: String?,
     val price: Double,
     val changePercent: Double,
     val indicators: List<AssetIndicator>,

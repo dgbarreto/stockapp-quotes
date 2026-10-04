@@ -17,5 +17,6 @@ data class QuoteFundamentals(
     val ebitda: Double?,
     val priceToSalesRatio: Double?,
     val earningsCagr5y: Double?,
+    val companyName: String?,
     val dividendPerShareTtm: Double?,
 )

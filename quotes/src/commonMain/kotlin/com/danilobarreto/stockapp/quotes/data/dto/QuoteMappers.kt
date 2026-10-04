@@ -20,6 +20,7 @@ fun QuoteFundamentalsDto.toDomain(): QuoteFundamentals = QuoteFundamentals(
     ebitda = ebitda,
     priceToSalesRatio = priceToSalesRatio,
     earningsCagr5y = earningsCagr5y,
+    companyName = companyName,
     dividendPerShareTtm = dividendPerShareTtm,
 )
 
@@ -44,6 +45,7 @@ fun QuoteHistoryEntryDto.toDomain(): QuoteHistoryEntry = QuoteHistoryEntry(
         // na resposta ao vivo do /quotes/:ticker. Null aqui de propósito.
         priceToSalesRatio = null,
         earningsCagr5y = null,
+        companyName = null,
         dividendPerShareTtm = null,
     ),
 )

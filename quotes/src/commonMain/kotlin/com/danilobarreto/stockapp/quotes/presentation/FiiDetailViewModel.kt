@@ -42,6 +42,7 @@ class FiiDetailViewModel(
                 AssetDetailUiState.Success(
                     AssetDetailSummary(
                         ticker = fii.ticker,
+                        companyName = fii.name,
                         price = last,
                         changePercent = changePercent,
                         indicators = listOf(

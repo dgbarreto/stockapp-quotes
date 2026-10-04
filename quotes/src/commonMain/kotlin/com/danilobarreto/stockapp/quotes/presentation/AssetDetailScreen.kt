@@ -7,12 +7,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.danilobarreto.stockapp.designsystem.components.StockAppAreaLineChart
@@ -38,8 +44,11 @@ import com.danilobarreto.stockapp.designsystem.components.StockAppSegmentedContr
 import com.danilobarreto.stockapp.designsystem.icons.StockAppIcons
 import com.danilobarreto.stockapp.designsystem.theme.StockAppColors
 import com.danilobarreto.stockapp.designsystem.theme.StockAppShapes
+import com.danilobarreto.stockapp.designsystem.theme.StockAppSpacing
 import com.danilobarreto.stockapp.designsystem.theme.StockAppTypography
-import com.danilobarreto.stockapp.designsystem.util.toDecimalString
+import com.danilobarreto.stockapp.designsystem.util.toBrNumber
+import com.danilobarreto.stockapp.designsystem.util.toBrPercent
+import com.danilobarreto.stockapp.designsystem.util.toBrl
 import com.danilobarreto.stockapp.quotes.domain.AssetDetailSummary
 import com.danilobarreto.stockapp.quotes.domain.AssetIndicator
 import com.danilobarreto.stockapp.quotes.domain.IndicatorFormat
@@ -126,7 +135,7 @@ private fun AssetDetailScreen(
                 StockAppErrorBanner(uiState.message, modifier = Modifier.padding(16.dp))
             }
             is AssetDetailUiState.Success -> {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.padding(horizontal = StockAppSpacing.screenHorizontal, vertical = StockAppSpacing.lg)) {
                     ChartCard(
                         pricesUiState = pricesUiState,
                         selectedRange = selectedRange,
@@ -151,8 +160,13 @@ private fun DetailHeader(ticker: String, summary: AssetDetailSummary?, onBack: (
         modifier = Modifier
             .fillMaxWidth()
             .background(StockAppColors.primary, shape = StockAppShapes.headerBottomRadius)
-            .safeContentPadding()
-            .padding(horizontal = 20.dp, vertical = 14.dp)
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
+            .padding(
+                start = StockAppSpacing.screenHorizontal,
+                end = StockAppSpacing.screenHorizontal,
+                top = StockAppSpacing.headerTop,
+                bottom = StockAppSpacing.headerBottom,
+            )
     ) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             HeaderIconButton(icon = StockAppIcons.ArrowLeft, contentDescription = "Voltar", onClick = onBack)
@@ -166,9 +180,20 @@ private fun DetailHeader(ticker: String, summary: AssetDetailSummary?, onBack: (
             modifier = Modifier.padding(top = 16.dp),
         )
 
+        summary?.companyName?.let {
+            Text(
+                it,
+                style = StockAppTypography.bodyMedium,
+                color = StockAppColors.onPrimary.copy(alpha = 0.8f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = 2.dp),
+            )
+        }
+
         summary?.let {
             Text(
-                "R$ ${it.price.toDecimalString()}",
+                it.price.toBrl(),
                 style = StockAppTypography.displayLarge,
                 color = StockAppColors.onPrimary,
                 modifier = Modifier.padding(top = 4.dp),
@@ -176,7 +201,7 @@ private fun DetailHeader(ticker: String, summary: AssetDetailSummary?, onBack: (
             val positive = it.changePercent >= 0
             val sign = if (positive) "+" else ""
             Text(
-                "$sign${it.changePercent.toDecimalString()}% hoje",
+                "${it.changePercent.toBrPercent(signed = true)} hoje",
                 style = StockAppTypography.labelMedium,
                 color = StockAppColors.onPrimary,
                 modifier = Modifier
@@ -280,9 +305,9 @@ private fun IndicatorCard(indicator: AssetIndicator, modifier: Modifier = Modifi
 private fun formatIndicatorValue(indicator: AssetIndicator): String {
     val value = indicator.value ?: return "—"
     return when (indicator.format) {
-        IndicatorFormat.RATIO -> value.toDecimalString()
-        IndicatorFormat.PERCENT -> "${value.toDecimalString()}%"
-        IndicatorFormat.CURRENCY -> "R$ ${value.toDecimalString()}"
+        IndicatorFormat.RATIO -> value.toBrNumber(2)
+        IndicatorFormat.PERCENT -> value.toBrPercent()
+        IndicatorFormat.CURRENCY -> value.toBrl()
     }
 }
 

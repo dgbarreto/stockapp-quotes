@@ -60,6 +60,7 @@ class QuoteDetailViewModel(
                 AssetDetailUiState.Success(
                     AssetDetailSummary(
                         ticker = fundamentals.ticker,
+                        companyName = fundamentals.companyName,
                         price = last,
                         changePercent = changePercent,
                         indicators = listOf(
